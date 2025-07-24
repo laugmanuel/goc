@@ -2,7 +2,6 @@
 # GOC - GitOps Container
 
 set -Eeuo pipefail
-temp_dir=$(mktemp -d /tmp/goc.XXXXXX)
 
 function pinfo {
  printf "\033[32m%s\033[0m\n" "[$(date -Iseconds)] $*"
@@ -28,7 +27,7 @@ function pdebug {
 
 function notify {
   local title="$1"
-  local message="${2:=""}"
+  local message="${2:-"_"}"
 
   if is_true "${GOC_NOTIFICATIONS}" && [ -n "${GOC_NOTIFICATION_URL}" ]; then
     pdebug "Sending notification: **[goc] ${title}** ${message}"
@@ -40,6 +39,14 @@ function is_true {
   local value="$1"
   [[ "$value" == "true" || "$value" == "1" || "$value" == "yes" || "$value" == "on" ]]
 }
+
+function exit_handler {
+  pinfo "Exiting goc controller..."
+  notify "controller stopped" "The controller has been stopped."
+}
+
+trap exit_handler EXIT
+temp_dir=$(mktemp -d /tmp/goc.XXXXXX)
 
 ##########
 
@@ -58,11 +65,11 @@ GOC_REPOSITORY_CLEANED=$(echo "${GOC_REPOSITORY}" | sed -E 's/([a-zA-Z0-9_])+@//
 pinfo "[GLOBAL] Starting goc controller..."
 pinfo "  - Workspace: ${GOC_WORKSPACE}"
 pinfo "  - Repository: ${GOC_REPOSITORY_CLEANED}"
-pinfo "  - Branch: ${GOC_REPOSITORY_BRANCH}s"
-pinfo "  - Config: ${GOC_REPOSITORY_CONFIG}s"
+pinfo "  - Branch: ${GOC_REPOSITORY_BRANCH}"
+pinfo "  - Config: ${GOC_REPOSITORY_CONFIG}"
 pinfo "  - Interval: ${GOC_INTERVAL}s"
 
-notify "Starting goc controller!"
+notify "Starting controller!" "The controller has been started!"
 
 while [ true ]; do
   # clone or update the repository
