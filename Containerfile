@@ -1,6 +1,14 @@
 FROM alpine:latest
 
-RUN apk add --no-cache bash coreutils docker-cli docker-cli-compose git yq rsync
+RUN apk add --no-cache \
+  apprise \
+  bash \
+  coreutils \
+  docker-cli \
+  docker-cli-compose \
+  git \
+  rsync \
+  yq
 
 COPY goc.sh /usr/local/bin/goc.sh
 

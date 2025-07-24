@@ -1,5 +1,10 @@
 services:
-  goc:
+  goc-controller:
     build:
       context: ./
       dockerfile: Containerfile
+    environment:
+      - GOC_INTERVAL=1
+    extends:
+      file: compose.yaml
+      service: goc-controller
