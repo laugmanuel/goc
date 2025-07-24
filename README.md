@@ -7,7 +7,7 @@
 _gitops-compose_ allows you to manage all your compose stacks in a central repostiory and use GitOps principles to deploy the changes on your fleet:
 
 - Automatically deploy changes on the compose files
-- Only ~100 LoC in plain bash
+- Only ~120 LoC in plain bash
 - One repository for multiple machines
 - Mix and match stacks based on configuration files
 - Simple onboarding for new machines
