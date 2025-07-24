@@ -71,7 +71,7 @@ while [ true ]; do
     compose_file=$(yq ".stacks.${stack}.compose_file // \"\"" "${temp_dir}/${GOC_REPOSITORY_CONFIG}")
 
     # check for config changes
-    if ! diff -qr "${source_dir}" "${target_dir}" >/dev/null 2>&1; then
+    if [ ! -z "$(cd "${source_dir}"; find . -type f -exec diff -q {} "${target_dir}/{}" \;)" ]; then
       pchange "[+] Changes detected in stack ${stack}. Updating..."
 
       # sync changes from source to target directory
