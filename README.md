@@ -82,6 +82,7 @@ docker run -d --name=goc-controller --restart=unless-stopped --env-file=.env --v
 | GOC_INTERVAL          | check interval in seconds                                                                                                        | no       | 30       |
 | GOC_NOTIFICATIONS     | enable or disable notifications using [AppRise](https://github.com/caronc/apprise)                                               | no       | false    |
 | GOC_NOTIFICATION_URL  | AppRise notification URL                                                                                                         | no       | -        |
+| DEBUG                 | Enable debug output in the log                                                                                                   | no       | false    |
 
 ## Limitations
 
