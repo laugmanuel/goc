@@ -1,0 +1,5 @@
+services:
+  goc:
+    build:
+      context: ./
+      dockerfile: Containerfile

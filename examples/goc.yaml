@@ -1,0 +1,20 @@
+# this is an example goc.yaml file
+# this file defines the stacks that goc will manage
+
+stacks:
+  test:
+    repo_dir: docker/test/
+    target_dir: test/
+
+  test2:
+    repo_dir: docker/test2/
+    target_dir: test2/
+    compose_file: cmps.yaml
+
+  test3:
+    repo_dir: docker/test3/
+    target_dir: test3/
+
+  test4:
+    repo_dir: docker/test4/
+    target_dir: test4/
