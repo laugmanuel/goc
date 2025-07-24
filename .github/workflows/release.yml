@@ -6,7 +6,7 @@ on:
 
   # run every day to keep the image up to date
   schedule:
-    - cron: "30 5,17 * * *"
+    - cron: "30 5 * * *"
 
   # run on change in main and releases branches
   push:
