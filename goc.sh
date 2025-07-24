@@ -28,7 +28,7 @@ function pdebug {
 
 function notify {
   local title="$1"
-  local message="$2"
+  local message="${2:=""}"
 
   if is_true "${GOC_NOTIFICATIONS}" && [ -n "${GOC_NOTIFICATION_URL}" ]; then
     pdebug "Sending notification: **[goc] ${title}** ${message}"
@@ -53,11 +53,16 @@ function is_true {
 : "${GOC_NOTIFICATIONS:=false}"
 : "${GOC_NOTIFICATION_URL:=""}"
 
-pinfo "[GLOBAL] Starting goc controller..."
-pinfo "  - workspace: ${GOC_WORKSPACE}"
-pinfo "  - interval: ${GOC_INTERVAL}s"
+GOC_REPOSITORY_CLEANED=$(echo "${GOC_REPOSITORY}" | sed -E 's/([a-zA-Z0-9_])+@//g') # remove any git reference like "PAT@"
 
-notify "GLOBAL Notification" "Starting goc controller!"
+pinfo "[GLOBAL] Starting goc controller..."
+pinfo "  - Workspace: ${GOC_WORKSPACE}"
+pinfo "  - Repository: ${GOC_REPOSITORY_CLEANED}"
+pinfo "  - Branch: ${GOC_REPOSITORY_BRANCH}s"
+pinfo "  - Config: ${GOC_REPOSITORY_CONFIG}s"
+pinfo "  - Interval: ${GOC_INTERVAL}s"
+
+notify "Starting goc controller!"
 
 while [ true ]; do
   # clone or update the repository
@@ -107,7 +112,7 @@ while [ true ]; do
       else
         perr "[${stack}] Failed to update stack. Output:"
         echo "${docker_output}"
-        notify "[${stack}] [ERROR]" "Failed to update stack. Output: ${docker_output}"
+        notify "[${stack}] [ERROR]" "Failed to update stack. Output: ${docker_output}. Check repository for changes: ${GOC_REPOSITORY_CLEANED}"
       fi
     else
       pinfo "[${stack}] No changes detected in stack ${stack}. Skipping update."
