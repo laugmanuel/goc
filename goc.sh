@@ -93,7 +93,7 @@ function config_entry {
   local key="$1"
   local default="${2:-""}"
 
-  v=$(yq -er "${key}" "${TEMP_DIR}/${GOC_REPOSITORY_CONFIG}")
+  v=$(yq -er "${key}" "${TEMP_DIR}/${GOC_REPOSITORY_CONFIG}" 2>/dev/null)
   return_code=$?
 
   if [ $return_code -eq 0 ]; then
