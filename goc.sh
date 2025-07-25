@@ -4,7 +4,7 @@
 set -Eeuo pipefail
 
 function pinfo {
- printf "\033[32m%s\033[0m\n" "[$(date -Iseconds)] $*"
+  printf "\033[32m%s\033[0m\n" "[$(date -Iseconds)] $*"
 }
 
 function pchange {
@@ -31,7 +31,7 @@ function notify {
 
   if is_true "${GOC_NOTIFICATIONS}" && [ -n "${GOC_NOTIFICATION_URL}" ]; then
     pdebug "Sending notification: **[goc] ${title}** ${message}"
-    apprise -v -t "**[goc] ${title}**" -b "${message}" "${GOC_NOTIFICATION_URL}"   ""
+    apprise -v -t "**[goc] ${title}**" -b "${message}" "${GOC_NOTIFICATION_URL}" ""
   fi
 }
 
@@ -78,7 +78,10 @@ while [ true ]; do
     cd "${temp_dir}"
     git pull || (
       pdebug "Failed to pull repository, resetting..."
-      is_true "${GOC_REPOSITORY_RESET}" && (git fetch; git reset --hard "origin/${GOC_REPOSITORY_BRANCH}") || false
+      is_true "${GOC_REPOSITORY_RESET}" && (
+        git fetch
+        git reset --hard "origin/${GOC_REPOSITORY_BRANCH}"
+      ) || false
     )
   else
     pdebug "Cloning repository..."
@@ -95,7 +98,10 @@ while [ true ]; do
     compose_file=$(yq ".stacks.${stack}.compose_file // \"\"" "${temp_dir}/${GOC_REPOSITORY_CONFIG}")
 
     # check for config changes
-    if [ ! -z "$(cd "${source_dir}"; find . -type f -exec diff -q {} "${target_dir}/{}" \;)" ]; then
+    if [ ! -z "$(
+      cd "${source_dir}"
+      find . -type f -exec diff -q {} "${target_dir}/{}" \; 2>&1
+    )" ]; then
       pchange "[${stack}] Changes detected - updating..."
 
       # sync changes from source to target directory
@@ -111,7 +117,12 @@ while [ true ]; do
 
       # update the stack
       pdebug "Updating stack with command: docker compose ${compose_file_param} ${compose_params}"
-      { set +e; docker_output=$(docker compose ${compose_file_param} ${compose_params} 2>&1 >&3 3>&-); export returncode=$?; set -e; } 3>&1
+      {
+        set +e
+        docker_output=$(docker compose ${compose_file_param} ${compose_params} 2>&1 >&3 3>&-)
+        export returncode=$?
+        set -e
+      } 3>&1
 
       if [ ${returncode} -eq 0 ]; then
         pchange " Stack successfully updated!"
