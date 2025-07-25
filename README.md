@@ -7,7 +7,7 @@
 _gitops-compose_ allows you to manage all your compose stacks in a central repostiory and use GitOps principles to deploy the changes on your fleet:
 
 - Automatically deploy changes on the compose files
-- Only ~120 LoC in plain bash
+- less than 200 LoC in plain bash
 - One repository for multiple machines
 - Mix and match stacks based on configuration files
 - Simple onboarding for new machines
@@ -72,17 +72,19 @@ docker run -d --name=goc-controller --restart=unless-stopped --env-file=.env --v
 
 ## environment variables
 
-| variable              | description                                                                                                                      | required | default  |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
-| GOC_WORKSPACE         | Working directory for running docker compose stacks. This directory must exist on the host and will hold all compose stack files | yes      | -        |
-| GOC_REPOSITORY        | Git repository URL. If the repository is private, you can use a personal access token and prefix the URL with `<PAT>@`           | yes      | -        |
-| GOC_REPOSITORY_BRANCH | default branch for GOC to read from                                                                                              | no       | main     |
-| GOC_REPOSITORY_CONFIG | path to `goc.yaml` in the repository                                                                                             | no       | goc.yaml |
-| GOC_REPOSITORY_RESET  | switch to enable hard resets. This is only needed if the remote repository is subject to rewrites in the history                 | no       | false    |
-| GOC_INTERVAL          | check interval in seconds                                                                                                        | no       | 30       |
-| GOC_NOTIFICATIONS     | enable or disable notifications using [AppRise](https://github.com/caronc/apprise)                                               | no       | false    |
-| GOC_NOTIFICATION_URL  | AppRise notification URL                                                                                                         | no       | -        |
-| DEBUG                 | Enable debug output in the log                                                                                                   | no       | false    |
+| variable                    | description                                                                                                                      | required | default  |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
+| GOC_WORKSPACE               | Working directory for running docker compose stacks. This directory must exist on the host and will hold all compose stack files | yes      | -        |
+| GOC_REPOSITORY              | Git repository URL. If the repository is private, you can use a personal access token and prefix the URL with `<PAT>@`           | yes      | -        |
+| GOC_REPOSITORY_BRANCH       | default branch for GOC to read from                                                                                              | no       | main     |
+| GOC_REPOSITORY_CONFIG       | path to `goc.yaml` in the repository                                                                                             | no       | goc.yaml |
+| GOC_REPOSITORY_RESET        | switch to enable hard resets. This is only needed if the remote repository is subject to rewrites in the history                 | no       | false    |
+| GOC_INTERVAL                | check interval in seconds                                                                                                        | no       | 30       |
+| GOC_NOTIFICATIONS           | enable or disable notifications using [AppRise](https://github.com/caronc/apprise)                                               | no       | false    |
+| GOC_NOTIFICATION_URL        | AppRise notification URL                                                                                                         | no       | -        |
+| GOC_NOTIFICATION_START_STOP | send a notification on start and stop of goc controller                                                                          | no       | false    |
+| GOC_DRY_RUN                 | enable dry run mode. **Note: this <ins>does clone</ins> the repository but <ins>doesn't copy files or restart services</ins>**   | no       | false    |
+| DEBUG                       | Enable debug output in the log                                                                                                   | no       | false    |
 
 ## Limitations
 
