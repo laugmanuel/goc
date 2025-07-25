@@ -10,8 +10,6 @@ RUN apk add --no-cache \
   rsync \
   yq
 
-COPY goc.sh /usr/local/bin/goc.sh
-
-RUN chmod +x /usr/local/bin/goc.sh
+COPY --chmod=755 goc.sh /usr/local/bin/goc.sh
 
 ENTRYPOINT ["/usr/local/bin/goc.sh"]
