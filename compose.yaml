@@ -10,5 +10,8 @@ services:
       # docker socket is needed to manage containers
       - /var/run/docker.sock:/var/run/docker.sock
 
-      # GOC_WORKSPACE is the workspace directory for all stacks. Keep it in sync between host and container
+      # ⚠️
+      # ⚠️ GOC_WORKSPACE is the workspace directory for all stacks
+      # ⚠️ Keep it **in sync between host and container**!
+      # ⚠️
       - ${GOC_WORKSPACE}:${GOC_WORKSPACE}
