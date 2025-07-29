@@ -21,7 +21,7 @@ TEMP_DIR=$(mktemp -d /tmp/goc.XXXXXX)
 
 function exit_handler {
   pinfo "Exiting goc controller..."
-  is_true "${GOC_NOTIFICATION_START_STOP}" && notify "controller stopped" "The controller has been stopped."
+  is_true "${GOC_NOTIFICATION_START_STOP}" && notify "controller stopped" "The controller has been stopped." "🛑"
 }
 
 trap exit_handler EXIT
@@ -62,10 +62,11 @@ function is_true {
 function notify {
   local title="$1"
   local message="${2:-"_"}"
+  local notification_icon="${3:-""}"
 
   if is_true "${GOC_NOTIFICATIONS}" && [ -n "${GOC_NOTIFICATION_URL}" ]; then
     pdebug "Sending notification: **[goc] ${title}** ${message}"
-    apprise -v -t "**[goc] ${title}**" -b "${message}" "${GOC_NOTIFICATION_URL}" ""
+    apprise -v -t "" -b "${notification_icon} **${title}**: ${message}" "${GOC_NOTIFICATION_URL}" ""
   fi
 }
 
@@ -135,11 +136,11 @@ function compose {
 
   if [ ${return_code} -eq 0 ]; then
     pchange "[${stack}] Stack successfully updated!"
-    notify "[${stack}] [OK]" "Changes in stack have been applied successfully."
+    notify "[${stack}] [OK]" "Changes in stack have been applied successfully." "✅"
   else
     perr "[${stack}] Failed to update stack. Output:"
     echo "${docker_output}"
-    notify "[${stack}] [ERROR]" "Failed to update stack. Output: ${docker_output}. Check repository for changes: ${GOC_REPOSITORY_CLEANED}"
+    notify "[${stack}] [ERROR]" "Failed to update stack. Output: ${docker_output}. Check repository for changes: ${GOC_REPOSITORY_CLEANED}" "❌"
   fi
 }
 
@@ -152,7 +153,7 @@ pinfo "  - Branch: ${GOC_REPOSITORY_BRANCH}"
 pinfo "  - Config: ${GOC_REPOSITORY_CONFIG}"
 pinfo "  - Interval: ${GOC_INTERVAL}s"
 
-is_true "${GOC_NOTIFICATION_START_STOP}" && notify "Starting controller!" "The controller has been started!"
+is_true "${GOC_NOTIFICATION_START_STOP}" && notify "Starting controller!" "The controller has been started!" "🚀"
 
 while [ true ]; do
   # clone or update the repository
