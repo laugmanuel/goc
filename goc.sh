@@ -66,7 +66,7 @@ function notify {
 
   if is_true "${GOC_NOTIFICATIONS}" && [ -n "${GOC_NOTIFICATION_URL}" ]; then
     pdebug "Sending notification: **[goc] ${title}** ${message}"
-    apprise -v -t "" -b "${notification_icon} **${title}**: ${message}" "${GOC_NOTIFICATION_URL}" ""
+    apprise -v -t ":" -b "${notification_icon} **${title}**: ${message}" "${GOC_NOTIFICATION_URL}" ""
   fi
 }
 
