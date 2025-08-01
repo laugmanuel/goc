@@ -168,6 +168,14 @@ while [ true ]; do
     target_dir="${GOC_WORKSPACE}/$(config_entry .stacks.${stack}.target_dir)"
     compose_file=$(config_entry .stacks.${stack}.compose_file)
 
+    # check if the target directory is ignored
+    if test -f "$(realpath $target_dir)/.gocignore"; then
+      pchange "[${stack}] Ignoring stack due to .gocignore file..."
+      notify "[${stack}] [IGNORED]" "Ignoring stack temporarily due to .gocignore file..." "⏩"
+
+      continue
+    fi
+
     # check for config changes
     if [ ! "$(cd "${source_dir}"; find . -type f -exec diff -q {} "${target_dir}/{}" \; 2>&1)" ]; then
       pinfo "[${stack}] No changes detected in stack ${stack}. Skipping update."
@@ -183,14 +191,6 @@ while [ true ]; do
     # check if dry run is enabled
     if is_true "${GOC_DRY_RUN}"; then
       pchange "[${stack}] Skip rsync due to dry run mode..."
-
-      continue
-    fi
-
-    # check if the target directory is ignored
-    if test -f "$(realpath $target_dir)/.gocignore"; then
-      pchange "[${stack}] Ignoring stack due to .gocignore file..."
-      notify "[${stack}] [IGNORED]" "Ignoring stack temporarily due to .gocignore file..." "⏩"
 
       continue
     fi
