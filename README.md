@@ -7,7 +7,7 @@
 _gitops-compose_ allows you to manage all your compose stacks in a central repostiory and use GitOps principles to deploy the changes on your fleet:
 
 - Automatically deploy changes on the compose files
-- less than 200 LoC in plain bash
+- less than 300 LoC in plain bash
 - One repository for multiple machines
 - Mix and match stacks based on configuration files
 - Simple onboarding for new machines
@@ -85,6 +85,13 @@ docker run -d --name=goc-controller --restart=unless-stopped --env-file=.env --v
 | GOC_NOTIFICATION_START_STOP | send a notification on start and stop of goc controller                                                                          | no       | false    |
 | GOC_DRY_RUN                 | enable dry run mode. **Note: this <ins>does clone</ins> the repository but <ins>doesn't copy files or restart services</ins>**   | no       | false    |
 | DEBUG                       | Enable debug output in the log                                                                                                   | no       | false    |
+
+## temporarily ignore stack
+
+Sometimes it might be required to temporarily ignore a given stack directory without disabling _gitops-compose_ completely.
+
+For that purpose, you can just create a `.gocignore` file in the target directory.
+If that file is present, _gitops-compose_ wil ignore the stack and sent a notification on each interval to keep you informed about that fact.
 
 ## Limitations
 

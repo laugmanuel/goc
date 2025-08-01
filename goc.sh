@@ -169,19 +169,37 @@ while [ true ]; do
     compose_file=$(config_entry .stacks.${stack}.compose_file)
 
     # check for config changes
-    if [ "$(cd "${source_dir}"; find . -type f -exec diff -q {} "${target_dir}/{}" \; 2>&1)" ]; then
-      pchange "[${stack}] Changes detected - updating..."
-
-      # sync changes from source to target directory
-      mkdir -p "${target_dir}" || true
-      pdebug "[${stack}] Syncing changes from $(realpath $source_dir) to $(realpath $target_dir)"
-      is_true "${GOC_DRY_RUN}" || rsync -r "$(realpath $source_dir)/" "$(realpath $target_dir)/"
-
-      # run compose command
-      compose "${stack}" "${target_dir}" "${compose_file}"
-    else
+    if [ ! "$(cd "${source_dir}"; find . -type f -exec diff -q {} "${target_dir}/{}" \; 2>&1)" ]; then
       pinfo "[${stack}] No changes detected in stack ${stack}. Skipping update."
+      continue
     fi
+
+    pchange "[${stack}] Changes detected - updating..."
+
+    # sync changes from source to target directory
+    mkdir -p "${target_dir}" || true
+    pdebug "[${stack}] Syncing changes from $(realpath $source_dir) to $(realpath $target_dir)"
+
+    # check if dry run is enabled
+    if is_true "${GOC_DRY_RUN}"; then
+      pchange "[${stack}] Skip rsync due to dry run mode..."
+
+      continue
+    fi
+
+    # check if the target directory is ignored
+    if test -f "$(realpath $target_dir)/.gocignore"; then
+      pchange "[${stack}] Ignoring stack due to .gocignore file..."
+      notify "[${stack}] [IGNORED]" "Ignoring stack temporarily due to .gocignore file..." "⏩"
+
+      continue
+    fi
+
+    # sync changes
+    rsync -r "$(realpath $source_dir)/" "$(realpath $target_dir)/"
+
+    # run compose command
+    compose "${stack}" "${target_dir}" "${compose_file}"
   done
 
   pdebug "Sleeping for ${GOC_INTERVAL} seconds before next check..."
