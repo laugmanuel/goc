@@ -9,9 +9,10 @@ _gitops-compose_ allows you to manage all your compose stacks in a central repos
 - Automatically deploy changes on the compose files
 - less than 300 LoC in plain bash
 - One repository for multiple machines
+- Simple onboarding
 - Mix and match stacks based on configuration files
-- Simple onboarding for new machines
 - Get notified about changes
+- support for host-specific overlays
 
 This project is ideally combined with some sort of automatic dependency update mechanism, like Renovate or Dependabot.
 
@@ -22,13 +23,15 @@ There are essentially only two steps towards using _gitops-compose_:
 1. Prepare the repository containing all the stack configuration files by adding `goc.yaml`
 2. Deploy the goc-controller and point it to the repository
 
-### `goc.yaml` configuration file
+### `goc.yaml` Configuration File
 
 This file is the main entrypoint into the provided repository. Here you define the paths and settings for each given stack _gitops-compose_ should manage.
 
 The file is incredibly lightweight and follows this structure:
 
 ```yaml
+compose_override_prefix: example
+
 stacks:
   foo:
     # Path of compose stack relative to the repository root
@@ -51,7 +54,7 @@ stacks:
     compose_file: compose.prod.yaml
 ```
 
-### goc controller deployment
+### GOC Deployment
 
 You can run the _gitops-compose_ controller either as a plain docker container or using it's own compose stack.
 
@@ -60,17 +63,17 @@ To avoid secrets in process outputs or the compose file itself, it's recommanded
 > [!IMPORTANT]
 > !! Please note that the mounted stack directory needs to be the same on the host and container !!
 
-#### docker compose stack
+#### Docker Compose Stack
 
 See [compose.yaml](compose.yaml) for an example. Copy the contents into a `compose.yaml` and start the stack.
 
-#### docker container
+#### Docker Container
 
 ```sh
 docker run -d --name=goc-controller --restart=unless-stopped --env-file=.env --volume /foo/bar/stacks:/foo/bar/stacks --volume /var/run/docker.sock:/var/run/docker.sock ghcr.io/laugmanuel/goc:main
 ```
 
-## environment variables
+## Environment Variables
 
 | variable                    | description                                                                                                                      | required | default  |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
@@ -86,7 +89,23 @@ docker run -d --name=goc-controller --restart=unless-stopped --env-file=.env --v
 | GOC_DRY_RUN                 | enable dry run mode. **Note: this <ins>does clone</ins> the repository but <ins>doesn't copy files or restart services</ins>**   | no       | false    |
 | DEBUG                       | Enable debug output in the log                                                                                                   | no       | false    |
 
-## temporarily ignore stack
+## Host Specific Overrides
+
+You can achieve host specific overrides by setting `compose_override_prefix` in the `GOC_REPOSITORY_CONFIG` file.
+
+The controller will then look for a file matching `<PREFIX>.*.override.ya[m]l` in the source directory and sync it to `*.override.ya[m]l`.
+
+**Examples:**
+
+```sh
+# compose_override_prefix: foobar
+foobar.docker-compose.override.yaml → docker-compose.override.yaml
+
+# compose_override_prefix: alpha-beta
+alpha-beta.compose.override.yml → compose.override.yml
+```
+
+## Temporarily Ignore Stack
 
 Sometimes it might be required to temporarily ignore a given stack directory without disabling _gitops-compose_ completely.
 

@@ -166,7 +166,8 @@ while [ true ]; do
     # extract source and target directories from the configuration
     source_dir="${TEMP_DIR}/$(config_entry .stacks.${stack}.repo_dir)"
     target_dir="${GOC_WORKSPACE}/$(config_entry .stacks.${stack}.target_dir)"
-    compose_file=$(config_entry .stacks.${stack}.compose_file)
+    compose_file="$(config_entry .stacks.${stack}.compose_file)"
+    compose_override_prefix="$(config_entry .stacks.${stack}.compose_override_prefix "UNSET_PREFIX_VALUE")"
 
     # check if the target directory is ignored
     if test -f "$(realpath $target_dir)/.gocignore"; then
@@ -195,8 +196,26 @@ while [ true ]; do
       continue
     fi
 
-    # sync changes
-    rsync -r "$(realpath $source_dir)/" "$(realpath $target_dir)/"
+    # sync changes (exclude override YAML files)
+    rsync -r --exclude='*.override.yaml' --exclude='*.override.yml' "$(realpath $source_dir)/" "$(realpath $target_dir)/"
+
+    # get override file for given host and sync it if exists
+    while IFS= read -r -d '' override_file; do
+      base=$(basename "${override_file}")
+
+      # remove prefix and following dot if present, otherwise just strip prefix
+      if [[ "${base}" == "${compose_override_prefix}."* ]]; then
+        override_file_target="${base#${compose_override_prefix}.}"
+      else
+        override_file_target="${base#${compose_override_prefix}}"
+      fi
+
+      pdebug "[${stack}] Syncing override file ${override_file} -> ${target_dir}/${override_file_target}"
+      rsync -r "$(realpath ${override_file})" "$(realpath "${target_dir}/${override_file_target}")"
+    done < <(find "${source_dir}" -type f -name "${compose_override_prefix}.*.override.*" -print0)
+
+
+    rsync -r --include='*.override.yaml' --include='*.override.yml' --exclude='*' "$(realpath $source_dir)/" "$(realpath $target_dir)/"
 
     # run compose command
     compose "${stack}" "${target_dir}" "${compose_file}"
