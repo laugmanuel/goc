@@ -1,5 +1,6 @@
 # this is an example goc.yaml file
 # this file defines the stacks that goc will manage
+compose_override_prefix: example
 
 stacks:
   test:
